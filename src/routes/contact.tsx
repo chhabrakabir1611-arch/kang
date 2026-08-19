@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
+import emailjs from "@emailjs/browser";
 import { Facebook, Mail, Phone, MapPin } from "lucide-react";
 import { services, site } from "@/data/site";
 import { PageHero, SectionHeading } from "@/components/ui-kit";
@@ -28,24 +29,37 @@ const fieldCls =
 
 function ContactPage() {
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState(false);
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setSending(true);
+    setSent(false);
+    setError(false);
     const data = new FormData(e.currentTarget);
-    const body = [
-      `Name: ${data.get("name")}`,
-      `Phone: ${data.get("phone")}`,
-      `Email: ${data.get("email")}`,
-      `Service Required: ${data.get("service")}`,
-      `Property Type: ${data.get("propertyType")}`,
-      `City / Service Area: ${data.get("city")}`,
-      "",
-      `${data.get("message")}`,
-    ].join("\n");
-    window.location.href = `${site.emailHref}?subject=${encodeURIComponent(
-      `Project enquiry — ${data.get("service")}`,
-    )}&body=${encodeURIComponent(body)}`;
-    setSent(true);
+    try {
+      await emailjs.send(
+        "service_tjr9dtc",
+        "template_jht9beb",
+        {
+          name: data.get("name"),
+          phone: data.get("phone"),
+          email: data.get("email"),
+          service: data.get("service"),
+          propertyType: data.get("propertyType"),
+          city: data.get("city"),
+          message: data.get("message"),
+        },
+        "Wy5uJM-Ic3sdpAkL9",
+      );
+      setSent(true);
+      e.currentTarget.reset();
+    } catch {
+      setError(true);
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -107,7 +121,7 @@ function ContactPage() {
             <form onSubmit={onSubmit} className="glass-panel rounded-3xl p-6 sm:p-9">
               <h2 className="text-2xl font-bold">Project Enquiry</h2>
               <p className="mt-2 text-sm text-muted-foreground">
-                Fill in the details below and your email app will open with the enquiry ready to send.
+                Fill in the details below and we will receive your enquiry by email.
               </p>
 
               <div className="mt-7 grid gap-4 sm:grid-cols-2">
@@ -177,13 +191,19 @@ function ContactPage() {
 
               <button
                 type="submit"
+                disabled={sending}
                 className="mt-7 w-full rounded-full bg-gold-gradient px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-gold)] transition-transform hover:-translate-y-0.5"
               >
-                Send Enquiry
+                {sending ? "Sending..." : "Send Enquiry"}
               </button>
               {sent ? (
                 <p className="mt-4 text-center text-sm text-gold">
-                  Your email app should now be open. You can also call {site.phone}.
+                  Thanks, your enquiry has been sent. We will be in touch soon.
+                </p>
+              ) : null}
+              {error ? (
+                <p className="mt-4 text-center text-sm text-destructive">
+                  We could not send your enquiry. Please call {site.phone} or try again.
                 </p>
               ) : null}
             </form>

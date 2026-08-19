@@ -68,6 +68,7 @@ function ContactPage() {
         "Wy5uJM-Ic3sdpAkL9",
       );
       setSent(true);
+      setError(false);
       e.currentTarget.reset();
     } catch (submissionError) {
       console.error("EmailJS contact form submission failed", submissionError);
@@ -215,8 +216,7 @@ function ContactPage() {
                 <p className="mt-4 text-center text-sm text-gold">
                   Thanks, your enquiry has been sent. We will be in touch soon.
                 </p>
-              ) : null}
-              {error ? (
+              ) : error ? (
                 <p className="mt-4 text-center text-sm text-destructive">
                   We could not send your enquiry. Please call {site.phone} or try again.
                 </p>

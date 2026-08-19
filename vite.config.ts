@@ -14,4 +14,9 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  // Pin the server build to Netlify Functions. Ignored inside the Lovable sandbox
+  // (that build path always overrides this to its own cloudflare/fetch-bundle preset).
+  nitro: {
+    preset: "netlify",
+  },
 });

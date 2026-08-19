@@ -39,23 +39,38 @@ function ContactPage() {
     setError(false);
     const data = new FormData(e.currentTarget);
     try {
+      const name = data.get("name");
+      const phone = data.get("phone");
+      const email = data.get("email");
+      const service = data.get("service");
+      const propertyType = data.get("propertyType");
+      const city = data.get("city");
+      const message = data.get("message");
+
       await emailjs.send(
         "service_tjr9dtc",
         "template_jht9beb",
         {
-          name: data.get("name"),
-          phone: data.get("phone"),
-          email: data.get("email"),
-          service: data.get("service"),
-          propertyType: data.get("propertyType"),
-          city: data.get("city"),
-          message: data.get("message"),
+          name,
+          from_name: name,
+          phone,
+          email,
+          from_email: email,
+          reply_to: email,
+          service,
+          service_required: service,
+          propertyType,
+          property_type: propertyType,
+          city,
+          city_service_area: city,
+          message,
         },
         "Wy5uJM-Ic3sdpAkL9",
       );
       setSent(true);
       e.currentTarget.reset();
-    } catch {
+    } catch (submissionError) {
+      console.error("EmailJS contact form submission failed", submissionError);
       setError(true);
     } finally {
       setSending(false);
